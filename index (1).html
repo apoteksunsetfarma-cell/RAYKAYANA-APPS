@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KAYANA APPS - Master Produk & Proyek (Fast Mobile & Real-Time)</title>
+  <!-- Tailwind CSS CDN -->
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=2Mzq9GbRRkHNJc9LyZASlanmG6_6T_qpd75sSGOA8YREjPsctQGYDfD5cYsUNHYxMDGVmrhEIp4DGX7FCw5UC8miE2wms0jxyx_Sn4GOp45aFeyGcn9-FiRbPOIGXyccFiDx6Tp6Id9EmTEEyw3_2MGBBQtdtFR7nrU_fVKUs_y_8m95pn7TgsASMY_DDlKH-sExUwX5v3a1GDbLuAuF61oWmcJa7hIbtGELDN7IRhaGLvH1Xee4OwUyfyyNvbjky2A3IgH_Do_CnXxELHfRRP9evxG58OSc_qNs-VHDvL0zEOo3QuthnsZw_VQhBmqk" charset="UTF-8"></script><script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    @keyframes pulse-highlight {
+      0% { background-color: #dcfce7; }
+      100% { background-color: transparent; }
+    }
+    .row-updated {
+      animation: pulse-highlight 2s ease-out;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+      .print-area { box-shadow: none !important; border: none !important; width: 100% !important; max-width: 100% !important; }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white shadow-md no-print">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="bg-emerald-500 p-2.5 rounded-lg text-slate-900">
+          <i class="fas fa-layer-group text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight">KAYANA APPS</h1>
+          <p class="text-[11px] text-slate-300">Database Produk &amp; Multi-Proyek Real-Time</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <button id="deviceBadgeBtn" onclick="changeDeviceName()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition" title="Klik ubah nama perangkat">
+          <i class="fas fa-desktop text-emerald-400"></i>
+          <span id="deviceNameLabel">PC 1</span>
+          <i class="fas fa-pen text-[9px] text-slate-400"></i>
+        </button>
+
+        <button onclick="openSecondTab()" class="bg-indigo-600 hover:bg-indigo-500 px-2.5 py-1.5 rounded-lg font-medium flex items-center gap-1 transition">
+          <i class="fas fa-clone"></i> Tes Tab
+        </button>
+
+        <button onclick="exportBackupJSON()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1 transition">
+          <i class="fas fa-download text-sky-400"></i> Backup
+        </button>
+
+        <label class="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-2.5 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer transition">
+          <i class="fas fa-upload text-amber-400"></i> Restore
+          <input id="restoreJsonInput" type="file" accept=".json" onchange="importBackupJSON(event)" class="hidden" />
+        </label>
+      </div>
+    </div>
+
+    <!-- Sync Status Bar -->
+    <div class="bg-slate-800/80 border-t border-slate-700/70">
+      <div class="max-w-7xl mx-auto px-4 py-1 flex flex-wrap items-center justify-between text-[11px] text-slate-300 gap-2">
+        <div class="flex items-center gap-2" role="status">
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="syncStatusText" class="font-medium text-emerald-300">Siap (Offline &amp; Cloud Sync)</span>
+        </div>
+        <div class="text-slate-400" id="lastSyncInfo">Sinkronisasi aktif</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Toast Notification -->
+  <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto px-4 py-4 md:py-6 flex-1 w-full space-y-4 md:space-y-6">
+
+    <!-- Project Selector & Summary Cards -->
+    <div class="space-y-3">
+      <div class="bg-white p-3.5 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 no-print">
+        <div class="flex flex-wrap items-center gap-2 flex-1">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-500">Proyek:</label>
+          <select id="projectSelect" onchange="selectProject(this.value)" class="border border-slate-300 rounded-lg px-3 py-1.5 text-sm font-medium bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 min-w-[200px] flex-1 sm:flex-none"></select>
+          <button onclick="renameActiveProject()" class="text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-medium transition" title="Ubah Nama Proyek">
+            <i class="fas fa-edit"></i>
+          </button>
+          <button onclick="openNewProjectModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+            <i class="fas fa-plus"></i> Baru
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="exportProjectCSV()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+            <i class="fas fa-file-csv text-emerald-600"></i> CSV
+          </button>
+          <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-900 text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+            <i class="fas fa-print"></i> Cetak
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+          <div class="bg-blue-50 text-blue-600 p-3 rounded-xl">
+            <i class="fas fa-boxes text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[11px] font-medium text-slate-500">Total HPP Proyek</p>
+            <h3 id="cardTotalHpp" class="text-lg font-bold text-slate-800 mt-0.5">Rp 0</h3>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+          <div class="bg-amber-50 text-amber-600 p-3 rounded-xl">
+            <i class="fas fa-chart-line text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[11px] font-medium text-slate-500">Margin Proyek</p>
+            <h3 id="cardTotalMargin" class="text-lg font-bold text-amber-600 mt-0.5">Rp 0</h3>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
+          <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl">
+            <i class="fas fa-file-invoice-dollar text-lg"></i>
+          </div>
+          <div>
+            <p class="text-[11px] font-medium text-slate-500">Total Penawaran</p>
+            <h3 id="cardTotalOffer" class="text-lg font-bold text-emerald-600 mt-0.5">Rp 0</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Two-Column Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+      <!-- Left: Modul Proyek (7 cols) -->
+      <section class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden print-area">
+        <div class="p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50/50">
+          <div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600">RAB Proyek</span>
+            <h2 id="activeProjectTitle" class="text-base font-bold text-slate-800">Detail Proyek</h2>
+          </div>
+
+          <div class="flex items-center gap-2 bg-white border border-slate-300 rounded-lg px-2.5 py-1 no-print">
+            <span class="text-xs font-medium text-slate-600">Margin:</span>
+            <input id="marginInput" type="number" min="0" max="500" step="1" value="20" onchange="updateProjectMargin(this.value)" class="w-14 text-right font-bold text-sm text-emerald-700 focus:outline-none" />
+            <span class="text-xs font-bold text-slate-500">%</span>
+          </div>
+        </div>
+
+        <!-- Price Sync Alert Banner -->
+        <div id="priceDiffBanner" class="hidden bg-amber-50 border-b border-amber-200 px-4 py-2.5 flex items-center justify-between gap-3 text-xs text-amber-800 no-print">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-exclamation-triangle text-amber-500"></i>
+            <span>Harga item berbeda dengan Master Produk.</span>
+          </div>
+          <button onclick="syncProjectPricesWithMaster()" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded font-semibold whitespace-nowrap transition">
+            Perbarui Harga
+          </button>
+        </div>
+
+        <div class="p-4 space-y-3">
+          <!-- Add Item Bar -->
+          <div class="flex flex-col sm:flex-row gap-2 no-print">
+            <select id="productDropdown" class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <option value="">-- Pilih Barang dari Master --</option>
+            </select>
+            <input id="itemQtyInput" type="number" min="1" value="1" placeholder="Qty" class="w-full sm:w-20 border border-slate-300 rounded-lg px-3 py-2 text-sm text-center font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            <button onclick="addItemToProject()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-1.5">
+              <i class="fas fa-plus"></i> Tambah
+            </button>
+          </div>
+
+          <!-- Project Items Table -->
+          <div class="overflow-x-auto border border-slate-200 rounded-lg">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-100 text-slate-600 text-xs uppercase font-semibold">
+                <tr>
+                  <th class="px-3 py-2.5">Produk</th>
+                  <th class="px-3 py-2.5 text-right">Harga</th>
+                  <th class="px-3 py-2.5 text-center">Qty</th>
+                  <th class="px-3 py-2.5 text-right">Subtotal</th>
+                  <th class="px-3 py-2.5 text-center no-print">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="projectItemsBody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+
+          <!-- Project Totals Box -->
+          <div class="bg-slate-50 border border-slate-200 rounded-lg p-3.5 space-y-1.5 text-xs sm:text-sm">
+            <div class="flex justify-between text-slate-600">
+              <span>Total HPP (Modal):</span>
+              <span id="summaryHpp" class="font-semibold text-slate-800">Rp 0</span>
+            </div>
+            <div class="flex justify-between text-slate-600">
+              <span>Margin (<span id="summaryMarginPct">20</span>%):</span>
+              <span id="summaryMarginVal" class="font-semibold text-amber-600">Rp 0</span>
+            </div>
+            <div class="border-t border-slate-200 pt-1.5 flex justify-between text-sm sm:text-base font-bold text-slate-900">
+              <span>Total Penawaran:</span>
+              <span id="summaryGrandTotal" class="text-emerald-600">Rp 0</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Master Database Produk (5 cols) -->
+      <section class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden no-print">
+        <div class="p-4 border-b border-slate-200 flex items-center justify-between gap-2 bg-slate-50/50">
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Master Produk</h2>
+            <p class="text-[11px] text-slate-500"><span id="productCountBadge">55</span> item terdaftar</p>
+          </div>
+          <button onclick="openProductModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+            <i class="fas fa-plus"></i> Produk Baru
+          </button>
+        </div>
+
+        <div class="p-4 space-y-3">
+          <div class="relative">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input id="searchProductInput" type="text" oninput="renderMasterProducts()" placeholder="Cari SKU atau nama produk..." class="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+          </div>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-lg max-h-[480px] overflow-y-auto">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-slate-100 text-slate-600 text-xs uppercase font-semibold sticky top-0">
+                <tr>
+                  <th class="px-3 py-2.5">SKU / Nama</th>
+                  <th class="px-3 py-2.5 text-right">Harga</th>
+                  <th class="px-3 py-2.5 text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="masterProductsBody" class="divide-y divide-slate-200"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-3 text-center text-[11px] text-slate-500 no-print">
+    KAYANA APPS © 2026 - Mobile Optimized &amp; Real-Time Sync
+  </footer>
+
+  <!-- Modal Tambah / Edit Produk -->
+  <div id="productModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+        <h3 id="productModalTitle" class="font-bold text-sm text-slate-800">Tambah Produk</h3>
+        <button onclick="closeProductModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+      </div>
+      <form onsubmit="saveProductForm(event)" class="p-4 space-y-3">
+        <input type="hidden" id="editProductId" />
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Kode SKU</label>
+          <input id="prodSkuInput" type="text" required placeholder="Contoh: 070" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Produk</label>
+          <input id="prodNameInput" type="text" required placeholder="Contoh: multi mercy 18mm" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Harga Satuan (Rp)</label>
+          <input id="prodPriceInput" type="number" min="0" required placeholder="Contoh: 322000" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeProductModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+          <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal Buat Proyek Baru -->
+  <div id="projectModal" class="fixed inset-0 bg-slate-900/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+      <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+        <h3 class="font-bold text-sm text-slate-800">Proyek Baru</h3>
+        <button onclick="closeNewProjectModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+      </div>
+      <form onsubmit="createNewProject(event)" class="p-4 space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Proyek</label>
+          <input id="newProjectNameInput" type="text" required placeholder="Contoh: Renovasi Kantor" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Margin Awal (%)</label>
+          <input id="newProjectMarginInput" type="number" min="0" max="500" value="20" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeNewProjectModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
+          <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white">Buat</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Script Aplikasi Cepat & Tangguh -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, writeBatch
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const DEFAULT_PRODUCTS = [
+      { id: "1794543723706", sku: "001", name: "multi mercy 18mm", price: 322000 },
+      { id: "1794543739208", sku: "002", name: "multi mercy 15mm", price: 267000 },
+      { id: "1794543756584", sku: "003", name: "multi mercy 12mm", price: 226000 },
+      { id: "1794543777521", sku: "004", name: "multi mercy 9mm", price: 176000 },
+      { id: "1794543795528", sku: "006", name: "multi mercy 6mm", price: 115000 },
+      { id: "1794543857375", sku: "007", name: "blockmin 15mm", price: 322000 },
+      { id: "1794543887910", sku: "008", name: "blockmin 18mm 1 sisi", price: 322000 },
+      { id: "1794543929006", sku: "009", name: "melamin 6mm", price: 180000 },
+      { id: "1794543960558", sku: "010", name: "melamin 3mm garuda", price: 138000 },
+      { id: "1794543998541", sku: "011", name: "multi mc 18mm", price: 289000 },
+      { id: "1794544011693", sku: "012", name: "multi mc 15mm", price: 250000 },
+      { id: "1794544028740", sku: "013", name: "multi mc 12mm", price: 210000 },
+      { id: "1794544048660", sku: "013", name: "multi mc 9mm", price: 168000 },
+      { id: "1794544073284", sku: "015", name: "lem power hpl 10kg", price: 477000 },
+      { id: "1794544144995", sku: "017", name: "HPL TACO CODE D", price: 216000 },
+      { id: "1794545743275", sku: "019", name: "HPL TACO CODE G", price: 216000 },
+      { id: "1794545773603", sku: "019", name: "HPL TACO CODE AA", price: 166000 },
+      { id: "1794545828618", sku: "020", name: "HPL TACO CODE  KY", price: 336000 },
+      { id: "1794545854250", sku: "021", name: "HPL TACO CODE FC", price: 245000 },
+      { id: "1794545871363", sku: "022", name: "HPL TACO CODE NT", price: 245000 },
+      { id: "1794545895209", sku: "023", name: "HPL TACO CODE RE", price: 336000 },
+      { id: "1794545923961", sku: "024", name: "HPL TACO CODE AC", price: 208000 },
+      { id: "1794545952609", sku: "024", name: "HPL TACO CODE H", price: 208000 },
+      { id: "1794545993928", sku: "026", name: "HPL TACO CODE JG", price: 290000 },
+      { id: "1794546029815", sku: "027", name: "HPL TACO CODE J", price: 245000 },
+      { id: "1794546098535", sku: "030", name: "ENGSEL TACO", price: 15000 },
+      { id: "1794546120958", sku: "031", name: "ENGSEL KOBOI", price: 115000 },
+      { id: "1794546135887", sku: "032", name: "TRAVO 60 W HUBEN", price: 87000 },
+      { id: "1794546175006", sku: "033", name: "RUMAH LAMPU", price: 60000 },
+      { id: "1794546232445", sku: "034", name: "MULTI GARUDA 15MM", price: 250000 },
+      { id: "1794546268572", sku: "036", name: "RAK PIRING", price: 185000 },
+      { id: "1794546367371", sku: "037", name: "REL LACI DT 25", price: 30000 },
+      { id: "1794546387819", sku: "038", name: "REL LACI DT 30", price: 35000 },
+      { id: "1794546401226", sku: "039", name: "REL LACI DT 35", price: 37000 },
+      { id: "1794546414914", sku: "040", name: "REL LACI DT 40", price: 45000 },
+      { id: "1794546428074", sku: "041", name: "REL LACI DT 45", price: 50000 },
+      { id: "1794546448370", sku: "043", name: "REL LACI DT 50", price: 55000 },
+      { id: "1794546464026", sku: "044", name: "TINNER", price: 35000 },
+      { id: "1794546478249", sku: "045", name: "LEM G", price: 10000 },
+      { id: "1794546498305", sku: "045", name: "AMBALAN KACA", price: 1200 },
+      { id: "1794546514649", sku: "046", name: "AMBALAN SIKU", price: 500 },
+      { id: "1794546530338", sku: "046", name: "LUBANG KABEL", price: 15000 },
+      { id: "1794546547688", sku: "047", name: "SAKLAR", price: 20000 },
+      { id: "1794546568280", sku: "050", name: "STOP CONTAK", price: 20000 },
+      { id: "1794546583592", sku: "051", name: "LAMPU LED", price: 100000 },
+      { id: "1794546630143", sku: "054", name: "JASA", price: 600000 },
+      { id: "1794546734206", sku: "055", name: "CERMIN 5MM", price: 30 },
+      { id: "1794546824668", sku: "056", name: "CERMIN 3MM", price: 26 },
+      { id: "1794546893164", sku: "057", name: "KACA 3MM", price: 13 },
+      { id: "1794546941242", sku: "059", name: "KACA 6MM", price: 22 },
+      { id: "1794548750698", sku: "060", name: "REL LEMARI PUTAR 30CM", price: 125000 },
+      { id: "1794548998909", sku: "061", name: "REL PINTU SLIDING", price: 45000 },
+      { id: "1794549024829", sku: "063", name: "RODA PINTU SLIDING", price: 20000 },
+      { id: "1794549119411", sku: "064", name: "SEALANT", price: 40000 },
+      { id: "1794549616788", sku: "069", name: "JASA TRANSPORT", price: 350000 }
+    ];
+
+    const DEFAULT_PROJECTS = [
+      { id: "proj-1", name: "Proyek Apotek Kuta Pariwisata", marginPercent: 20, items: [] },
+      { id: "proj-2", name: "Pengadaan Apotek Seminyak", marginPercent: 30, items: [] }
+    ];
+
+    const SESSION_ID = "sess-" + Math.random().toString(36).substring(2, 9);
+    let deviceName = localStorage.getItem("kayana_device_name") || "HP / PC 1";
+    document.getElementById("deviceNameLabel").textContent = deviceName;
+
+    // Load Local immediately so mobile rendering is instant (0ms delay)
+    let masterProducts = [...DEFAULT_PRODUCTS];
+    let projects = [...DEFAULT_PROJECTS];
+    let activeProjectId = localStorage.getItem("kayana_active_project") || "proj-2";
+
+    try {
+      const savedProds = localStorage.getItem("kayana_master_products_v2");
+      const savedProjs = localStorage.getItem("kayana_projects_v2");
+      if (savedProds) masterProducts = JSON.parse(savedProds);
+      if (savedProjs) projects = JSON.parse(savedProjs);
+    } catch (e) {}
+
+    let db = null;
+    let useCloud = false;
+    let recentlyUpdatedIds = new Set();
+    let qtyDebounceTimer = null;
+
+    function formatRupiah(num) {
+      return "Rp " + (Number(num) || 0).toLocaleString("id-ID");
+    }
+
+    function showToast(msg, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const el = document.createElement("div");
+      const bg = type === "sync" ? "bg-emerald-700" : type === "warn" ? "bg-amber-600" : "bg-slate-800";
+      el.className = `${bg} text-white text-xs px-3.5 py-2 rounded-lg shadow-lg flex items-center gap-2 transition-opacity duration-300`;
+      el.innerHTML = `<i class="fas fa-info-circle"></i><span>${msg}</span>`;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = "0";
+        setTimeout(() => el.remove(), 300);
+      }, 2500);
+    }
+
+    function updateLastSyncTime() {
+      const now = new Date().toLocaleTimeString("id-ID");
+      document.getElementById("lastSyncInfo").textContent = `Sinkron: ${now}`;
+    }
+
+    // Render immediately on load
+    renderAll();
+
+    // Async Cloud & Broadcast Initialization (Non-blocking for instant mobile load)
+    async function initStorage() {
+      let bc = null;
+      try {
+        bc = new BroadcastChannel("kayana_realtime_channel");
+        bc.onmessage = (event) => {
+          if (event.data && event.data.sessionId !== SESSION_ID) {
+            loadLocalFallback();
+            renderAll();
+            showToast(`Update dari ${event.data.deviceName}`, "sync");
+            updateLastSyncTime();
+          }
+        };
+      } catch (e) {}
+
+      window.addEventListener("storage", (e) => {
+        if (e.key === "kayana_master_products_v2" || e.key === "kayana_projects_v2") {
+          loadLocalFallback();
+          renderAll();
+          updateLastSyncTime();
+        }
+      });
+
+      window.broadcastLocalUpdate = () => {
+        saveLocalFallback();
+        if (bc) {
+          try { bc.postMessage({ sessionId: SESSION_ID, deviceName }); } catch (e) {}
+        }
+        updateLastSyncTime();
+      };
+
+      try {
+        if (typeof __firebase_config !== "undefined" && __firebase_config) {
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const app = initializeApp(firebaseConfig);
+          const auth = getAuth(app);
+          db = getFirestore(app);
+          const appId = typeof __app_id !== "undefined" ? __app_id : "kayana-apps-default";
+
+          await signInAnonymously(auth);
+          onAuthStateChanged(auth, async (user) => {
+            if (!user) return;
+            useCloud = true;
+            document.getElementById("syncStatusText").textContent = "Cloud Real-Time Aktif";
+            const prodCol = collection(db, "artifacts", appId, "public", "data", "kayana_products");
+            const projCol = collection(db, "artifacts", appId, "public", "data", "kayana_projects");
+
+            const prodSnap = await getDocs(prodCol);
+            if (prodSnap.empty) {
+              const batch = writeBatch(db);
+              DEFAULT_PRODUCTS.forEach(p => {
+                batch.set(doc(prodCol, p.id), { ...p, updatedBy: deviceName, sessionId: SESSION_ID, updatedAt: Date.now() });
+              });
+              DEFAULT_PROJECTS.forEach(pr => {
+                batch.set(doc(projCol, pr.id), { ...pr, updatedBy: deviceName, sessionId: SESSION_ID, updatedAt: Date.now() });
+              });
+              await batch.commit();
+            }
+
+            onSnapshot(prodCol, (snapshot) => {
+              const list = [];
+              snapshot.forEach(d => list.push(d.data()));
+              if (list.length > 0) {
+                list.sort((a, b) => String(a.sku).localeCompare(String(b.sku)));
+                masterProducts = list;
+                snapshot.docChanges().forEach(change => {
+                  const data = change.doc.data();
+                  if (data.sessionId && data.sessionId !== SESSION_ID) {
+                    recentlyUpdatedIds.add(data.id);
+                    showToast(`Produk diperbarui oleh ${data.updatedBy || "perangkat lain"}`, "sync");
+                  }
+                });
+                saveLocalFallback();
+                renderAll();
+                updateLastSyncTime();
+              }
+            });
+
+            onSnapshot(projCol, (snapshot) => {
+              const list = [];
+              snapshot.forEach(d => list.push(d.data()));
+              if (list.length > 0) {
+                projects = list;
+                if (!projects.some(p => p.id === activeProjectId)) {
+                  activeProjectId = projects[0].id;
+                }
+                saveLocalFallback();
+                renderAll();
+                updateLastSyncTime();
+              }
+            });
+          });
+        }
+      } catch (err) {
+        console.warn("Cloud mode skipped, using local storage:", err);
+      }
+    }
+
+    function saveLocalFallback() {
+      try {
+        localStorage.setItem("kayana_master_products_v2", JSON.stringify(masterProducts));
+        localStorage.setItem("kayana_projects_v2", JSON.stringify(projects));
+        localStorage.setItem("kayana_active_project", activeProjectId);
+      } catch (e) {}
+    }
+
+    function loadLocalFallback() {
+      try {
+        const savedProds = localStorage.getItem("kayana_master_products_v2");
+        const savedProjs = localStorage.getItem("kayana_projects_v2");
+        if (savedProds) masterProducts = JSON.parse(savedProds);
+        if (savedProjs) projects = JSON.parse(savedProjs);
+        if (!projects.some(p => p.id === activeProjectId) && projects.length > 0) {
+          activeProjectId = projects[0].id;
+        }
+      } catch (e) {}
+    }
+
+    async function persistProduct(prod) {
+      const payload = { ...prod, updatedBy: deviceName, sessionId: SESSION_ID, updatedAt: Date.now() };
+      const idx = masterProducts.findIndex(p => String(p.id) === String(prod.id));
+      if (idx >= 0) masterProducts[idx] = payload;
+      else masterProducts.push(payload);
+      masterProducts.sort((a, b) => String(a.sku).localeCompare(String(b.sku)));
+      
+      saveLocalFallback();
+      window.broadcastLocalUpdate();
+      renderAll();
+
+      if (useCloud && db) {
+        try {
+          const appId = typeof __app_id !== "undefined" ? __app_id : "kayana-apps-default";
+          await setDoc(doc(db, "artifacts", appId, "public", "data", "kayana_products", String(prod.id)), payload);
+        } catch (e) {
+          console.warn("Cloud sync write failed:", e);
+        }
+      }
+    }
+
+    async function removeProduct(id) {
+      masterProducts = masterProducts.filter(p => String(p.id) !== String(id));
+      saveLocalFallback();
+      window.broadcastLocalUpdate();
+      renderAll();
+
+      if (useCloud && db) {
+        try {
+          const appId = typeof __app_id !== "undefined" ? __app_id : "kayana-apps-default";
+          await deleteDoc(doc(db, "artifacts", appId, "public", "data", "kayana_products", String(id)));
+        } catch (e) {}
+      }
+    }
+
+    async function persistProject(proj) {
+      const payload = { ...proj, updatedBy: deviceName, sessionId: SESSION_ID, updatedAt: Date.now() };
+      const idx = projects.findIndex(p => String(p.id) === String(proj.id));
+      if (idx >= 0) projects[idx] = payload;
+      else projects.push(payload);
+      
+      saveLocalFallback();
+      window.broadcastLocalUpdate();
+      renderAll();
+
+      if (useCloud && db) {
+        try {
+          const appId = typeof __app_id !== "undefined" ? __app_id : "kayana-apps-default";
+          await setDoc(doc(db, "artifacts", appId, "public", "data", "kayana_projects", String(proj.id)), payload);
+        } catch (e) {}
+      }
+    }
+
+    // UI Render Functions
+    function renderAll() {
+      renderProjectSelector();
+      renderProductDropdown();
+      renderActiveProject();
+      renderMasterProducts();
+    }
+
+    function renderProjectSelector() {
+      const sel = document.getElementById("projectSelect");
+      if (!sel) return;
+      sel.innerHTML = projects.map(p => `<option value="${p.id}" ${p.id === activeProjectId ? "selected" : ""}>${p.name} (Margin ${p.marginPercent}%)</option>`).join("");
+    }
+
+    function renderProductDropdown() {
+      const dd = document.getElementById("productDropdown");
+      if (!dd) return;
+      dd.innerHTML = `<option value="">-- Pilih Barang dari Master (${masterProducts.length}) --</option>` +
+        masterProducts.map(p => `<option value="${p.id}">[${p.sku}] ${p.name} — ${formatRupiah(p.price)}</option>`).join("");
+    }
+
+    function renderActiveProject() {
+      const proj = projects.find(p => p.id === activeProjectId) || projects[0];
+      if (!proj) return;
+
+      document.getElementById("activeProjectTitle").textContent = proj.name;
+      document.getElementById("marginInput").value = proj.marginPercent;
+      document.getElementById("summaryMarginPct").textContent = proj.marginPercent;
+
+      const tbody = document.getElementById("projectItemsBody");
+      let totalHpp = 0;
+      let hasPriceDiff = false;
+
+      if (!proj.items || proj.items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-6 text-center text-slate-400 text-xs">Belum ada item. Pilih barang di atas untuk menyusun RAB.</td></tr>`;
+      } else {
+        tbody.innerHTML = proj.items.map((item, idx) => {
+          const master = masterProducts.find(m => String(m.id) === String(item.productId));
+          if (master && Number(master.price) !== Number(item.unitPrice)) {
+            hasPriceDiff = true;
+          }
+          const sub = Number(item.unitPrice) * Number(item.qty);
+          totalHpp += sub;
+          return `
+            <tr class="hover:bg-slate-50">
+              <td class="px-3 py-2.5">
+                <div class="font-medium text-slate-800">${item.name}</div>
+                <div class="text-[10px] text-slate-400">SKU: ${item.sku || "-"}</div>
+              </td>
+              <td class="px-3 py-2.5 text-right whitespace-nowrap text-xs sm:text-sm">${formatRupiah(item.unitPrice)}</td>
+              <td class="px-3 py-2.5 text-center">
+                <input type="number" min="1" value="${item.qty}" oninput="debouncedUpdateItemQty(${idx}, this.value)" class="w-14 border border-slate-300 rounded px-1.5 py-1 text-center text-xs font-semibold" />
+              </td>
+              <td class="px-3 py-2.5 text-right font-semibold text-slate-800 whitespace-nowrap text-xs sm:text-sm">${formatRupiah(sub)}</td>
+              <td class="px-3 py-2.5 text-center no-print">
+                <button onclick="removeProjectItem(${idx})" class="text-rose-500 hover:text-rose-700 p-1" title="Hapus">
+                  <i class="fas fa-trash-alt text-xs"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      const banner = document.getElementById("priceDiffBanner");
+      if (hasPriceDiff) banner.classList.remove("hidden");
+      else banner.classList.add("hidden");
+
+      const marginVal = Math.round(totalHpp * (Number(proj.marginPercent) / 100));
+      const grandTotal = totalHpp + marginVal;
+
+      document.getElementById("cardTotalHpp").textContent = formatRupiah(totalHpp);
+      document.getElementById("cardTotalMargin").textContent = formatRupiah(marginVal);
+      document.getElementById("cardTotalOffer").textContent = formatRupiah(grandTotal);
+
+      document.getElementById("summaryHpp").textContent = formatRupiah(totalHpp);
+      document.getElementById("summaryMarginVal").textContent = formatRupiah(marginVal);
+      document.getElementById("summaryGrandTotal").textContent = formatRupiah(grandTotal);
+    }
+
+    window.renderMasterProducts = function() {
+      const keyword = (document.getElementById("searchProductInput").value || "").toLowerCase();
+      const filtered = masterProducts.filter(p =>
+        String(p.sku).toLowerCase().includes(keyword) || String(p.name).toLowerCase().includes(keyword)
+      );
+      document.getElementById("productCountBadge").textContent = masterProducts.length;
+
+      const tbody = document.getElementById("masterProductsBody");
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="px-4 py-6 text-center text-slate-400 text-xs">Produk tidak ditemukan.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(p => {
+        const highlight = recentlyUpdatedIds.has(p.id) ? "row-updated" : "";
+        return `
+          <tr class="hover:bg-slate-50 ${highlight}">
+            <td class="px-3 py-2">
+              <span class="inline-block bg-slate-100 text-slate-600 text-[10px] font-bold px-1 py-0.5 rounded mr-1">${p.sku}</span>
+              <span class="font-medium text-slate-800 text-xs sm:text-sm">${p.name}</span>
+            </td>
+            <td class="px-3 py-2 text-right font-semibold text-slate-700 whitespace-nowrap text-xs sm:text-sm">${formatRupiah(p.price)}</td>
+            <td class="px-3 py-2 text-center whitespace-nowrap">
+              <button onclick="openProductModal('${p.id}')" class="text-sky-600 hover:text-sky-800 p-1.5" title="Edit">
+                <i class="fas fa-edit text-xs"></i>
+              </button>
+              <button onclick="deleteMasterProduct('${p.id}')" class="text-rose-500 hover:text-rose-700 p-1.5" title="Hapus">
+                <i class="fas fa-trash text-xs"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+      recentlyUpdatedIds.clear();
+    };
+
+    // Global Window Actions
+    window.changeDeviceName = function() {
+      const next = prompt("Nama perangkat ini (mis: HP Kasir / PC Kantor):", deviceName);
+      if (next && next.trim()) {
+        deviceName = next.trim();
+        localStorage.setItem("kayana_device_name", deviceName);
+        document.getElementById("deviceNameLabel").textContent = deviceName;
+        showToast(`Perangkat: ${deviceName}`);
+      }
+    };
+
+    window.openSecondTab = function() {
+      window.open(window.location.href, "_blank");
+    };
+
+    window.selectProject = function(id) {
+      activeProjectId = id;
+      localStorage.setItem("kayana_active_project", id);
+      renderActiveProject();
+    };
+
+    window.updateProjectMargin = function(val) {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!proj) return;
+      proj.marginPercent = Math.max(0, Number(val) || 0);
+      persistProject(proj);
+    };
+
+    window.addItemToProject = function() {
+      const prodId = document.getElementById("productDropdown").value;
+      const qty = Math.max(1, Number(document.getElementById("itemQtyInput").value) || 1);
+      if (!prodId) return alert("Pilih barang terlebih dahulu!");
+
+      const prod = masterProducts.find(p => String(p.id) === String(prodId));
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!prod || !proj) return;
+
+      if (!proj.items) proj.items = [];
+      const existing = proj.items.find(i => String(i.productId) === String(prod.id));
+      if (existing) {
+        existing.qty = Number(existing.qty) + qty;
+      } else {
+        proj.items.push({
+          productId: prod.id,
+          sku: prod.sku,
+          name: prod.name,
+          unitPrice: Number(prod.price),
+          qty: qty
+        });
+      }
+      document.getElementById("itemQtyInput").value = 1;
+      persistProject(proj);
+      showToast(`Ditambahkan: ${prod.name}`);
+    };
+
+    window.debouncedUpdateItemQty = function(idx, val) {
+      clearTimeout(qtyDebounceTimer);
+      qtyDebounceTimer = setTimeout(() => {
+        const proj = projects.find(p => p.id === activeProjectId);
+        if (!proj || !proj.items[idx]) return;
+        proj.items[idx].qty = Math.max(1, Number(val) || 1);
+        persistProject(proj);
+      }, 300);
+    };
+
+    window.removeProjectItem = function(idx) {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!proj) return;
+      proj.items.splice(idx, 1);
+      persistProject(proj);
+    };
+
+    window.syncProjectPricesWithMaster = function() {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!proj) return;
+      proj.items.forEach(item => {
+        const master = masterProducts.find(m => String(m.id) === String(item.productId));
+        if (master) {
+          item.unitPrice = Number(master.price);
+          item.name = master.name;
+          item.sku = master.sku;
+        }
+      });
+      persistProject(proj);
+      showToast("Harga diselaraskan dengan Master Produk!", "sync");
+    };
+
+    window.renameActiveProject = function() {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!proj) return;
+      const next = prompt("Ubah nama proyek:", proj.name);
+      if (next && next.trim()) {
+        proj.name = next.trim();
+        persistProject(proj);
+      }
+    };
+
+    window.openNewProjectModal = function() {
+      document.getElementById("projectModal").classList.remove("hidden");
+      document.getElementById("projectModal").classList.add("flex");
+    };
+
+    window.closeNewProjectModal = function() {
+      document.getElementById("projectModal").classList.add("hidden");
+      document.getElementById("projectModal").classList.remove("flex");
+    };
+
+    window.createNewProject = function(e) {
+      e.preventDefault();
+      const name = document.getElementById("newProjectNameInput").value.trim();
+      const marginPercent = Number(document.getElementById("newProjectMarginInput").value) || 0;
+      const newProj = {
+        id: "proj-" + Date.now(),
+        name,
+        marginPercent,
+        items: []
+      };
+      activeProjectId = newProj.id;
+      persistProject(newProj);
+      document.getElementById("newProjectNameInput").value = "";
+      closeNewProjectModal();
+      showToast(`Proyek "${name}" dibuat!`);
+    };
+
+    window.openProductModal = function(id = null) {
+      const modal = document.getElementById("productModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      if (id) {
+        const prod = masterProducts.find(p => String(p.id) === String(id));
+        if (!prod) return;
+        document.getElementById("productModalTitle").textContent = "Edit Produk";
+        document.getElementById("editProductId").value = prod.id;
+        document.getElementById("prodSkuInput").value = prod.sku;
+        document.getElementById("prodNameInput").value = prod.name;
+        document.getElementById("prodPriceInput").value = prod.price;
+      } else {
+        document.getElementById("productModalTitle").textContent = "Tambah Produk Baru";
+        document.getElementById("editProductId").value = "";
+        document.getElementById("prodSkuInput").value = "";
+        document.getElementById("prodNameInput").value = "";
+        document.getElementById("prodPriceInput").value = "";
+      }
+    };
+
+    window.closeProductModal = function() {
+      const modal = document.getElementById("productModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    };
+
+    window.saveProductForm = function(e) {
+      e.preventDefault();
+      const id = document.getElementById("editProductId").value || String(Date.now());
+      const sku = document.getElementById("prodSkuInput").value.trim();
+      const name = document.getElementById("prodNameInput").value.trim();
+      const price = Number(document.getElementById("prodPriceInput").value) || 0;
+      persistProduct({ id, sku, name, price });
+      closeProductModal();
+      showToast(`Produk "${name}" disimpan!`, "sync");
+    };
+
+    window.deleteMasterProduct = function(id) {
+      if (confirm("Hapus produk ini dari Master?")) {
+        removeProduct(id);
+        showToast("Produk dihapus.");
+      }
+    };
+
+    window.exportBackupJSON = function() {
+      const payload = {
+        format: "kayana-app-backup",
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        masterProducts,
+        projects,
+        activeProjectId
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Kayana_Backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Backup JSON diunduh!", "sync");
+    };
+
+    window.importBackupJSON = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const text = e.target.result.trim();
+          const data = JSON.parse(text);
+          let count = 0;
+
+          if (Array.isArray(data)) {
+            for (const p of data) {
+              if (p.name && p.price !== undefined) {
+                await persistProduct({
+                  id: String(p.id || Date.now() + Math.random()),
+                  sku: String(p.sku || "-"),
+                  name: String(p.name),
+                  price: Number(p.price) || 0
+                });
+                count++;
+              }
+            }
+          } else {
+            if (Array.isArray(data.masterProducts)) {
+              for (const p of data.masterProducts) {
+                await persistProduct({
+                  id: String(p.id || Date.now() + Math.random()),
+                  sku: String(p.sku || "-"),
+                  name: String(p.name),
+                  price: Number(p.price) || 0
+                });
+                count++;
+              }
+            }
+            if (Array.isArray(data.projects)) {
+              for (const pr of data.projects) {
+                await persistProject(pr);
+              }
+            }
+            if (data.activeProjectId) {
+              activeProjectId = data.activeProjectId;
+            }
+          }
+
+          event.target.value = "";
+          showToast(`Restore sukses! ${count} produk dimuat.`, "sync");
+        } catch (err) {
+          event.target.value = "";
+          alert("File JSON tidak valid: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+
+    window.exportProjectCSV = function() {
+      const proj = projects.find(p => p.id === activeProjectId);
+      if (!proj) return;
+      let rows = [["SKU", "Nama Produk", "Harga Satuan", "Qty", "Subtotal HPP"]];
+      let totalHpp = 0;
+      (proj.items || []).forEach(item => {
+        const sub = Number(item.unitPrice) * Number(item.qty);
+        totalHpp += sub;
+        rows.push([item.sku, `"${item.name}"`, item.unitPrice, item.qty, sub]);
+      });
+      const marginVal = Math.round(totalHpp * (Number(proj.marginPercent) / 100));
+      rows.push([]);
+      rows.push(["", "Total HPP", "", "", totalHpp]);
+      rows.push(["", `Margin (${proj.marginPercent}%)`, "", "", marginVal]);
+      rows.push(["", "Total Penawaran", "", "", totalHpp + marginVal]);
+
+      const csv = rows.map(r => r.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `RAB_${proj.name.replace(/\s+/g, "_")}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+
+    // Run init storage in background
+    initStorage();
+  </script>
+</body>
+</html>
